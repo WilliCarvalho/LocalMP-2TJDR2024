@@ -3,107 +3,77 @@ using UnityEngine.InputSystem;
 
 public class PlayerBehavior : MonoBehaviour
 {
-    private InputActionAsset inputAsset;
-    private InputActionMap player;
-    private InputAction move;
 
-    //movement fields
-    private Rigidbody rb;
-    [SerializeField] private float movementForce = 1f;
-    [SerializeField] private float jumpForce = 5f;
-    [SerializeField] private float maxSpeed = 5f;
-    private Vector3 forceDirection = Vector3.zero;
+    [SerializeField] private float velocity = 10;
+    [SerializeField] private float rotationvelocity = 10;
+    [SerializeField] private float moveSpeed = 10;
 
-    [SerializeField] private Camera playerCamera;
-    private Animator animator;
+    private float initialVelocity;
+
+    private CharacterController characterController;
+
+    private Vector3 moveDirection;
+
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
-        animator = GetComponent<Animator>();
-
-        inputAsset = GetComponent<PlayerInput>().actions;
-        player = inputAsset.FindActionMap("Player");
-    }
-
-    private void OnEnable()
-    {
-        player.FindAction("Jump").started += HandleJump;
-        player.FindAction("Attack").started += HandleAttack;
-        move = player.FindAction("Move");
-        player.Enable();
+        initialVelocity = velocity;
+        characterController = GetComponent<CharacterController>();
     }
 
     private void FixedUpdate()
     {
-        forceDirection += GetCameraRight(playerCamera) * (move.ReadValue<Vector2>().x * movementForce);
-        forceDirection += GetCameraForward(playerCamera) * (move.ReadValue<Vector2>().y * movementForce);
-        
-        rb.AddForce(forceDirection, ForceMode.Impulse);
-        forceDirection = Vector3.zero;
-
-        if (rb.velocity.y < 0f)
-            rb.velocity -= Vector3.down * (Physics.gravity.y * Time.fixedDeltaTime);
-
-        Vector3 horizontalVelocity = rb.velocity;
-        horizontalVelocity.y = 0;
-        if (horizontalVelocity.sqrMagnitude > maxSpeed * maxSpeed)
-            rb.velocity = horizontalVelocity.normalized * maxSpeed + Vector3.up * rb.velocity.y;
-
-        LookAt();
+        HandleMove();
     }
 
-    private void LookAt()
+    private void HandleMove()
     {
-        Vector3 direction = rb.velocity;
-        direction.y = 0f;
+        Vector2 inputData = GameManager.Instance.InputManager.Movement;
+        moveDirection.x = inputData.x;
+        moveDirection.z = inputData.y;
+        Vector3 cameraRelativeMovement =
+           ConvertMoveDirectionToCameraSpace(moveDirection);
 
-        if (move.ReadValue<Vector2>().sqrMagnitude > 0.1f && direction.sqrMagnitude > 0.1f)
-            this.rb.rotation = Quaternion.LookRotation(direction, Vector3.up);
-        else
-            rb.angularVelocity = Vector3.zero;
+        characterController.SimpleMove(cameraRelativeMovement *
+                                 velocity);
+        RotatePlayerAccordingToInput(cameraRelativeMovement);
     }
 
-    private Vector3 GetCameraForward(Camera playerCamera)
+    private void RotatePlayerAccordingToInput(Vector3 cameraRelativeMovement)
     {
-        Vector3 forward = playerCamera.transform.forward;
-        forward.y = 0;
-        return forward.normalized;
-    }
+        Vector3 pointToLookAt;
+        pointToLookAt.x = cameraRelativeMovement.x;
+        pointToLookAt.y = 0;
+        pointToLookAt.z = cameraRelativeMovement.z;
 
-    private Vector3 GetCameraRight(Camera playerCamera)
-    {
-        Vector3 right = playerCamera.transform.right;
-        right.y = 0;
-        return right.normalized;
-    }
+        Quaternion currentRotation = transform.rotation;
 
-    private void HandleJump(InputAction.CallbackContext obj)
-    {
-        if(IsGrounded())
+        if (moveDirection != Vector3.zero)
         {
-            forceDirection += Vector3.up * jumpForce;
+            Quaternion targetRotation = Quaternion.LookRotation(pointToLookAt);
+
+            transform.rotation =
+                Quaternion.Slerp(currentRotation,
+                                 targetRotation,
+                                 rotationvelocity * Time.deltaTime);
         }
+
     }
 
-    private bool IsGrounded()
+    private Vector3 ConvertMoveDirectionToCameraSpace(Vector3 moveDirection)
     {
-        Ray ray = new Ray(this.transform.position + Vector3.up * 0.25f, Vector3.down);
-        if (Physics.Raycast(ray, out RaycastHit hit, 0.5f))
-            return true;
-        else
-            return false; 
-    }
+        Vector3 cameraForward = Camera.main.transform.forward;
+        Vector3 cameraRight = Camera.main.transform.right;
 
-    private void HandleAttack(InputAction.CallbackContext obj)
-    {
-        animator.SetTrigger("Attack");
-    }
-    
-    private void OnDisable()
-    {
-        player.FindAction("Jump").started -= HandleJump;
-        player.FindAction("Attack").started -= HandleAttack;
-        player.Disable();
+        cameraForward.y = 0;
+        cameraRight.y = 0;
+
+        Vector3 cameraForwardZProduct = cameraForward * moveDirection.z;
+        Vector3 cameraRightXProduct = cameraRight * moveDirection.x;
+
+        Vector3 directionToMovePlayer =
+            cameraForwardZProduct + cameraRightXProduct;
+
+        return directionToMovePlayer;
     }
 }
