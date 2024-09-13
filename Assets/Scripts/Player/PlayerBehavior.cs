@@ -4,19 +4,25 @@ using UnityEngine.InputSystem;
 public class PlayerBehavior : MonoBehaviour
 {
 
+    private InputActionAsset inputActions;
+    private InputActionMap playerActionMap;
+    private InputAction moveAction;
+
     [SerializeField] private float velocity = 10;
     [SerializeField] private float rotationvelocity = 10;
     [SerializeField] private float moveSpeed = 10;
 
     private float initialVelocity;
-
     private CharacterController characterController;
-
     private Vector3 moveDirection;
-
+    private Vector2 inputData => moveAction.ReadValue<Vector2>();
 
     private void Awake()
     {
+        inputActions = GetComponent<PlayerInput>().actions;
+        playerActionMap = inputActions.FindActionMap("Player");
+        moveAction = playerActionMap.FindAction("Move");
+
         initialVelocity = velocity;
         characterController = GetComponent<CharacterController>();
     }
@@ -28,7 +34,6 @@ public class PlayerBehavior : MonoBehaviour
 
     private void HandleMove()
     {
-        Vector2 inputData = GameManager.Instance.InputManager.Movement;
         moveDirection.x = inputData.x;
         moveDirection.z = inputData.y;
         Vector3 cameraRelativeMovement =
@@ -62,6 +67,7 @@ public class PlayerBehavior : MonoBehaviour
 
     private Vector3 ConvertMoveDirectionToCameraSpace(Vector3 moveDirection)
     {
+        if (Camera.main == null) return Vector3.zero;
         Vector3 cameraForward = Camera.main.transform.forward;
         Vector3 cameraRight = Camera.main.transform.right;
 
