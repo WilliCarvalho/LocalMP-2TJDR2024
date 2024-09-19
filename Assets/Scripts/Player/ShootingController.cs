@@ -9,6 +9,11 @@ public class ShootingController : MonoBehaviour
     [SerializeField] private float aimSensitivity = 0.5f;
     [SerializeField] private float rotationVelocity = 20f;
     [SerializeField] private LayerMask aimColliderMask = new LayerMask();
+    [SerializeField] private ProjectileBehavior projectilePrefab;
+    [SerializeField] private Transform projectileSpawnerPosition;
+    
+    private Vector3 mouseWorldPosition = Vector3.zero;
+    Vector3 worldAimTarget = Vector3.zero;
 
     private ThirdPersonController thirdPersonController;
     private StarterAssetsInputs starterAssetsInputs;
@@ -24,14 +29,24 @@ public class ShootingController : MonoBehaviour
 
     private void Update()
     {
-        Vector3 mouseWorldPosition = Vector3.zero;
+        HandleAimDirection();
+
+        CheckAimInput();
+        CheckShootInput();
+    }
+
+    private void HandleAimDirection()
+    {
         Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
         Ray ray = myCamera.ScreenPointToRay(screenCenterPoint);
         if (Physics.Raycast(ray, out RaycastHit rayHit, 999f, aimColliderMask))
         {
             mouseWorldPosition = rayHit.point;
         }
-        
+    }
+
+    private void CheckAimInput()
+    {
         if (starterAssetsInputs.aim)
         {
             aimVirtualCamera.gameObject.SetActive(true);
@@ -39,7 +54,7 @@ public class ShootingController : MonoBehaviour
             thirdPersonController.SetBRotateOnMove(false);
             
             Quaternion currentRotation = transform.rotation;
-            Vector3 worldAimTarget = mouseWorldPosition;
+            worldAimTarget = mouseWorldPosition;
             worldAimTarget.y = transform.position.y;
             Vector3 aimDirection = (worldAimTarget - transform.position).normalized;
             Quaternion directionToAim = Quaternion.LookRotation(aimDirection);
@@ -52,7 +67,16 @@ public class ShootingController : MonoBehaviour
             thirdPersonController.SetBRotateOnMove(true);
             thirdPersonController.SetSensitivity(normalSensitivity);
         }
+    }
 
-        
+    private void CheckShootInput()
+    {
+        if (starterAssetsInputs.shoot)
+        {
+            Vector3 aimDirection = (mouseWorldPosition - projectileSpawnerPosition.position).normalized;
+            Instantiate(projectilePrefab, projectileSpawnerPosition.position,
+                Quaternion.LookRotation(aimDirection, Vector3.up));
+            starterAssetsInputs.shoot = false;
+        }
     }
 }
