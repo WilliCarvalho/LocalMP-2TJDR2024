@@ -1,4 +1,5 @@
 ﻿ using UnityEngine;
+ using UnityEngine.Serialization;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
 #endif
@@ -14,7 +15,10 @@ namespace StarterAssets
 #endif
     public class ThirdPersonController : MonoBehaviour
     {
-        [Header("Player")]
+        [Header("Player")] 
+        
+        [SerializeField] private float _lookSensitivity = 1f;
+        
         [Tooltip("Move speed of the character in m/s")]
         public float MoveSpeed = 2.0f;
 
@@ -74,6 +78,8 @@ namespace StarterAssets
 
         [Tooltip("For locking the camera position on all axis")]
         public bool LockCameraPosition = false;
+
+        private bool _rotateOnMove = true;
 
         // cinemachine
         private float _cinemachineTargetYaw;
@@ -198,8 +204,8 @@ namespace StarterAssets
                 //Don't multiply mouse input by Time.deltaTime;
                 float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 
-                _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier;
-                _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier;
+                _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier * _lookSensitivity;
+                _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier * _lookSensitivity;
             }
 
             // clamp our rotations so our values are limited 360 degrees
@@ -253,7 +259,7 @@ namespace StarterAssets
 
             // note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
             // if there is a move input rotate player when the player is moving
-            if (_input.move != Vector2.zero)
+            if (_input.move != Vector2.zero && _rotateOnMove)
             {
                 _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
                                   _mainCamera.transform.eulerAngles.y;
@@ -387,6 +393,16 @@ namespace StarterAssets
             {
                 AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
             }
+        }
+
+        public void SetSensitivity(float newSensi)
+        {
+            _lookSensitivity = newSensi;
+        }
+
+        public void SetBRotateOnMove(bool newValue)
+        {
+            _rotateOnMove = newValue;
         }
     }
 }
