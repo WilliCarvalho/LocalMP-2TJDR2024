@@ -18,6 +18,7 @@ public class ShootingController : MonoBehaviour
     private ThirdPersonController thirdPersonController;
     private StarterAssetsInputs starterAssetsInputs;
     private Camera myCamera;
+    private Animator animator;
 
     private void Awake()
     {
@@ -25,6 +26,7 @@ public class ShootingController : MonoBehaviour
         myCamera = transform.parent.gameObject.GetComponentInChildren<Camera>();
         thirdPersonController = GetComponent<ThirdPersonController>();
         starterAssetsInputs = GetComponent<StarterAssetsInputs>();
+        animator = GetComponent<Animator>();
     }
 
     private void Update()
@@ -53,6 +55,8 @@ public class ShootingController : MonoBehaviour
             thirdPersonController.SetSensitivity(aimSensitivity);
             thirdPersonController.SetBRotateOnMove(false);
             
+            animator.SetLayerWeight(1, Mathf.Lerp(animator.GetLayerWeight(1), 1f, Time.deltaTime * 10f));
+            
             Quaternion currentRotation = transform.rotation;
             worldAimTarget = mouseWorldPosition;
             worldAimTarget.y = transform.position.y;
@@ -66,6 +70,7 @@ public class ShootingController : MonoBehaviour
             aimVirtualCamera.gameObject.SetActive(false);
             thirdPersonController.SetBRotateOnMove(true);
             thirdPersonController.SetSensitivity(normalSensitivity);
+            animator.SetLayerWeight(1, Mathf.Lerp(animator.GetLayerWeight(1), 0f, Time.deltaTime * 10f));
         }
     }
 
