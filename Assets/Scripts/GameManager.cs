@@ -31,16 +31,17 @@ public class GameManager : MonoBehaviour
     private void AddPlayer(PlayerInput player)
     {
         players.Add(player);
-        int spawnPositionIndex = players.Count - 1;
+        
         Transform playerParent = player.transform.parent;
-        playerParent.position = playerSpawn[spawnPositionIndex].position;
+        print("Spawn position: " + playerSpawn[players.Count - 1].position);
+        player.transform.position = playerSpawn[players.Count - 1].position;
 
         int layerToAdd = (int)Mathf.Log(playerLayers[players.Count - 1].value, 2);
 
         print("layer to add " + layerToAdd);
 
-        playerParent.GetComponentInChildren<CinemachineFreeLook>().gameObject.layer = layerToAdd;
+        playerParent.GetComponentInChildren<CinemachineVirtualCamera>().gameObject.layer = layerToAdd;
         playerParent.GetComponentInChildren<Camera>().cullingMask |= 1 << layerToAdd;
-        playerParent.GetComponentInChildren<InputHandler>().horizontal = player.actions.FindAction("Look");
+        //playerParent.GetComponentInChildren<InputHandler>().horizontal = player.actions.FindAction("Look");
     }
 }

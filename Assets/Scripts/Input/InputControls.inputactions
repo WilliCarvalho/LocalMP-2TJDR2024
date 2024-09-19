@@ -49,6 +49,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Sprint",
+                    "type": "PassThrough",
+                    "id": "89481c79-a513-4c8f-8aa8-4da9198b6102",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -186,6 +195,17 @@
                 },
                 {
                     "name": "",
+                    "id": "29a1367e-6bda-4582-8a1f-adfec1dccf27",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "4f162731-8ed5-4685-baca-c4f5fadceb52",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
@@ -197,23 +217,23 @@
                 },
                 {
                     "name": "",
-                    "id": "29a1367e-6bda-4582-8a1f-adfec1dccf27",
-                    "path": "<Pointer>/delta",
+                    "id": "cebb6374-ee50-4a49-aefd-523b7e0b47fd",
+                    "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Look",
+                    "action": "Sprint",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "43d0049a-2244-4ce0-9063-fc839658bdd4",
-                    "path": "<Joystick>/{Hatswitch}",
+                    "id": "56ffa5fe-7142-46e6-894a-179c587903bd",
+                    "path": "<Gamepad>/leftStickPress",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Look",
+                    "action": "Sprint",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
