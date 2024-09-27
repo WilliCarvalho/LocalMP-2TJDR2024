@@ -10003,6 +10003,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameManager
       objectReference: {fileID: 0}
+    - target: {fileID: 889783484798818335, guid: 476181b5658b1174abb4cb4b8f5cf1ad,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6480996545895065905, guid: 476181b5658b1174abb4cb4b8f5cf1ad,
         type: 3}
       propertyPath: playerSpawn.Array.data[0]
