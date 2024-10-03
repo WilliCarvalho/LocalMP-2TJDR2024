@@ -40,7 +40,8 @@ public class ShootingController : MonoBehaviour
     private void HandleAimDirection()
     {
         Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
-        Ray ray = myCamera.ScreenPointToRay(screenCenterPoint);
+        //Ray ray = myCamera.ScreenPointToRay(screenCenterPoint);
+        Ray ray = myCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         if (Physics.Raycast(ray, out RaycastHit rayHit, 999f, aimColliderMask))
         {
             mouseWorldPosition = rayHit.point;
